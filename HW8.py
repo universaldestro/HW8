@@ -96,7 +96,15 @@ def get_highest_rating(db): #Do this through DB as well
     The second bar chart displays the buildings along the y-axis and their ratings along the x-axis 
     in descending order (by rating).
     """
-    pass
+
+    cur = connset(db)[0]
+    cur.execute('SELECT categories.category,restaurants.category_id FROM restaurants JOIN categories ON restuarants.category_id = categories.id ORDER BY restaurants.rating DESC')
+    first = cur.fetchone()
+    cur.execute('SELECT COUNT(category_id) FROM restaurants WHERE category_id = ?',(first[1],))
+    sec = []
+    for item in cur.fetchall():
+        sec.append(item[0])
+
 
 #Try calling your functions here
 def main():
