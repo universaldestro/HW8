@@ -62,19 +62,12 @@ def plot_rest_categories(db):
     for tup in data:
         x_axis.append(tup[0])
         y_axis.append(tup[1])
-    
-
-
     plt.barh(x_axis,y_axis)
     plt.title('Types of Restaurant on South University Ave')
     plt.xlabel('Number of Restaurants')
     plt.ylabel('Restaurant Categories')
     plt.show()
-    
-    
-    
     return d
-    pass
 
 def find_rest_in_building(building_num, db):
     '''
@@ -82,7 +75,14 @@ def find_rest_in_building(building_num, db):
     restaurant names. You need to find all the restaurant names which are in the specific building. The restaurants 
     should be sorted by their rating from highest to lowest.
     '''
-    pass
+    cur = connset(db)[0]
+    cur.execute('SELECT restaurants.name FROM restaurants JOIN buildings ON buildings.id = restaurants.building_id WHERE buildings.building = ? ORDER BY restaurants.rating DESC',(building_num,))
+    temp = cur.fetchall()
+    lst= []
+    for val in temp:
+        lst.append(val[0])
+    return lst
+
 
 #EXTRA CREDIT
 def get_highest_rating(db): #Do this through DB as well
