@@ -8,6 +8,11 @@ import os
 import sqlite3
 import unittest
 
+def connset(db):
+    conn = sqlite3.connect('/Users/Danie/Downloads/HW8/South_U_Restaurants.db')
+    cur = conn.cursor()
+    return (cur,conn)
+
 def load_rest_data(db):
     """
     This function accepts the file name of a database as a parameter and returns a nested
@@ -15,9 +20,24 @@ def load_rest_data(db):
     and each inner key is a dictionary, where the key:value pairs should be the category, 
     building, and rating for the restaurant.
     """
-    
+    start = connset(db)
+    d = {}
+    cur = start[0]
+    cur2 = cur
+    cur3 =cur
+    cur.execute( 'SELECT * FROM restaurants')
+    restaurants = cur.fetchall()
+    for row in restaurants:
+      cate_id = row[2]
+      build_id = row[3]
+      rating = row[4]
+      cur2.execute('SELECT category FROM categories WHERE id = ?',(cate_id,))
+      cate = cur2.fetchone()[0]
+      cur3.execute('SELECT building FROM buildings WHERE id = ?',(build_id,))
+      build = cur3.fetchone()[0]
+      d[row[1]] = {'category':cate,'building':build,'rating':rating}
+    return d
 
-    pass
 
 def plot_rest_categories(db):
     """
@@ -25,6 +45,35 @@ def plot_rest_categories(db):
     restaurant categories and the values should be the number of restaurants in each category. The function should
     also create a bar chart with restaurant categories and the count of number of restaurants in each category.
     """
+    d = {}
+    start = connset(db)#
+    cur = start[0]
+    cur.execute('SELECT id  FROM categories')
+    ids = cur.fetchall()
+    data = []
+    x_axis = [] 
+    y_axis=[]
+    for id in ids:
+        cur.execute('SELECT categories.category, COUNT(restaurants.category_id) FROM restaurants JOIN categories ON categories.id = restaurants.category_id WHERE restaurants.category_id = ?',(id[0],)) 
+        cates = cur.fetchone()
+        data.append(cates)
+        d[cates[0]] =cates[1]
+    data = sorted(data, key = lambda x: x[1])
+    for tup in data:
+        x_axis.append(tup[0])
+        y_axis.append(tup[1])
+    
+
+
+    plt.barh(x_axis,y_axis)
+    plt.title('Types of Restaurant on South University Ave')
+    plt.xlabel('Number of Restaurants')
+    plt.ylabel('Restaurant Categories')
+    plt.show()
+    
+    
+    
+    return d
     pass
 
 def find_rest_in_building(building_num, db):
